@@ -1,30 +1,38 @@
 <?php
 
 $mysqlHostName = "localhost";
+
+// $DbName = [
+// 	'swim_investmentmatrix' => [
+// 		'username' => 'swim_matrix',
+// 		'password' => 'cF3RB9NZPs'
+// 	],
+// 	'swim_offtheblocks' => [
+// 		'username' => 'swim_otb',
+// 		'password' => 'rN^,oV&AQ{B#'
+// 	],
+// 	'swim_central' => [
+// 		'username' => 'swim_central',
+// 		'password' => 'MQYO}KCLu5!0'
+// 	],
+// 	'swim_charEQter' => [
+// 		'username' => 'swim_charEQter',
+// 		'password' => 'qK6ZgbsHSiZNVXG'
+// 	],
+// 	'swim_divingiap' => [
+// 		'username' => 'swim_diving',
+// 		'password' => 'Sp0rtP4rk'
+// 	],
+// 	'swim_swimdb' => [
+// 		'username' => 'swim_swim1',
+// 		'password' => 'Sw1mtest5'
+// 	]
+// ];
+
 $DbName = [
-	'swim_investmentmatrix' => [
-		'username' => 'swim_matrix',
-		'password' => 'cF3RB9NZPs'
-	],
-	'swim_offtheblocks' => [
-		'username' => 'swim_otb',
-		'password' => 'rN^,oV&AQ{B#'
-	],
-	'swim_central' => [
-		'username' => 'swim_central',
-		'password' => 'MQYO}KCLu5!0'
-	],
-	'swim_charEQter' => [
-		'username' => 'swim_charEQter',
-		'password' => 'qK6ZgbsHSiZNVXG'
-	],
-	'swim_divingiap' => [
-		'username' => 'swim_diving',
-		'password' => 'Sp0rtP4rk'
-	],
-	'swim_swimdb' => [
-		'username' => 'swim_swim1',
-		'password' => 'Sw1mtest5'
+	'hwbz' => [
+		'username' => 'root',
+		'password' => ''
 	]
 ];
 
