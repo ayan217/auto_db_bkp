@@ -1,113 +1,81 @@
 <?php
-
+require_once './vendor/autoload.php';
+use PhpZip\ZipFile;
 $mysqlHostName = "localhost";
-
-// $DbName = [
-// 	'swim_investmentmatrix' => [
-// 		'username' => 'swim_matrix',
-// 		'password' => 'cF3RB9NZPs'
-// 	],
-// 	'swim_offtheblocks' => [
-// 		'username' => 'swim_otb',
-// 		'password' => 'rN^,oV&AQ{B#'
-// 	],
-// 	'swim_central' => [
-// 		'username' => 'swim_central',
-// 		'password' => 'MQYO}KCLu5!0'
-// 	],
-// 	'swim_charEQter' => [
-// 		'username' => 'swim_charEQter',
-// 		'password' => 'qK6ZgbsHSiZNVXG'
-// 	],
-// 	'swim_divingiap' => [
-// 		'username' => 'swim_diving',
-// 		'password' => 'Sp0rtP4rk'
-// 	],
-// 	'swim_swimdb' => [
-// 		'username' => 'swim_swim1',
-// 		'password' => 'Sw1mtest5'
-// 	]
-// ];
-
 $DbName = [
-	'hwbz' => [
-		'username' => 'root',
-		'password' => ''
+	'swim_investmentmatrix' => [
+		'username' => 'swim_matrix',
+		'password' => 'cF3RB9NZPs'
+	],
+	'swim_offtheblocks' => [
+		'username' => 'swim_otb',
+		'password' => 'rN^,oV&AQ{B#'
+	],
+	'swim_central' => [
+		'username' => 'swim_central',
+		'password' => 'MQYO}KCLu5!0'
+	],
+	'swim_charEQter' => [
+		'username' => 'swim_charEQter',
+		'password' => 'qK6ZgbsHSiZNVXG'
+	],
+	'swim_divingiap' => [
+		'username' => 'swim_diving',
+		'password' => 'Sp0rtP4rk'
+	],
+	'swim_swimdb' => [
+		'username' => 'swim_swim1',
+		'password' => 'Sw1mtest5'
 	]
 ];
-
 $backupFolder = __DIR__ . '/backups/' . date('Y-m-d');
-
 if (!is_dir($backupFolder)) {
 	mkdir($backupFolder, 0777, true);
 }
 $i = 0;
 foreach ($DbName as $exp_db_name => $details) {
-
 	$conn = mysqli_connect($mysqlHostName, $details['username'], $details['password'], $exp_db_name);
 	if (!$conn) {
 		die("Connection failed: " . mysqli_connect_error());
 	}
-
 	$backup_name = $exp_db_name . '.sql';
 	$path = $backupFolder . '/' . $backup_name;
 	db_dump($mysqlHostName, $details['username'], $details['password'], $exp_db_name, false, $path);
 	$i++;
 }
-
 $totaldbs = count($DbName);
-
-
 if ($i == $totaldbs) {
-
 	$zipFilename = 'backup_' . date('Y-m-d') . '.zip';
 	$zipPath = __DIR__ . '/' . $zipFilename;
-
 	$pathdir = __DIR__ . '/backups/' . date('Y-m-d') . '/';
 	if (zip($pathdir, $zipPath)) {
-
 		header('Content-Type: application/zip');
 		header('Content-Disposition: attachment; filename="' . $zipFilename . '"');
 		header('Content-Length: ' . filesize($zipPath));
 		readfile($zipPath);
-
 		unlink($zipPath);
 		deleteFolder($backupFolder);
 	}
 }
-
 function zip($pathdir, $zipcreated)
 {
-	require_once './pclzip.lib.php';
-
 	$sourceDir = $pathdir;
-	$zipFile = $zipcreated;
+	$zipFolder = $zipcreated;
 	$folderName = basename($sourceDir);
-
-	$files = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator($sourceDir),
-		RecursiveIteratorIterator::SELF_FIRST
-	);
-
-	$fileList = [];
-	foreach ($files as $file) {
-		if ($file->isFile()) {
-			$fileList[] = $file->getPathname();
-		}
-	}
-
-	$zip = new PclZip($zipFile);
-
-	$v_list = $zip->create($fileList, PCLZIP_OPT_REMOVE_ALL_PATH, PCLZIP_OPT_ADD_PATH, $folderName);
-	if ($v_list === 0) {
-		echo 'Failed to create the zip file. Error: ' . $zip->errorInfo(true);
+	$zipFile = $zipFolder;
+	$zip = new ZipFile();
+	try {
+		$zip
+			->addDir($sourceDir, $folderName)
+			->saveAsFile($zipFile)
+			->close();
+		return true;
+	} catch (\PhpZip\Exception\ZipException $e) {
 		return false;
+	} finally {
+		$zip->close();
 	}
-
-	return true;
 }
-
-
 function deleteFolder($folderPath)
 {
 	if (is_dir($folderPath)) {
@@ -125,14 +93,11 @@ function deleteFolder($folderPath)
 		return false;
 	}
 }
-
-
 function db_dump($host, $user, $pass, $name,  $tables = false, $path)
 {
 	$mysqli = new mysqli($host, $user, $pass, $name);
 	$mysqli->select_db($name);
 	$mysqli->query("SET NAMES 'utf8'");
-
 	$queryTables    = $mysqli->query('SHOW TABLES');
 	while ($row = $queryTables->fetch_row()) {
 		$target_tables[] = $row[0];
@@ -147,7 +112,6 @@ function db_dump($host, $user, $pass, $name,  $tables = false, $path)
 		$res            =   $mysqli->query('SHOW CREATE TABLE ' . $table);
 		$TableMLine     =   $res->fetch_row();
 		$content        = (!isset($content) ?  '' : $content) . "\n\n" . $TableMLine[1] . ";\n\n";
-
 		for ($i = 0, $st_counter = 0; $i < $fields_amount; $i++, $st_counter = 0) {
 			while ($row = $result->fetch_row()) { //when started (and every after 100 command cycle):
 				if ($st_counter % 100 == 0 || $st_counter == 0) {
@@ -176,6 +140,5 @@ function db_dump($host, $user, $pass, $name,  $tables = false, $path)
 		}
 		$content .= "\n\n\n";
 	}
-
 	file_put_contents($path, $content);
 }
